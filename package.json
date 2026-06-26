@@ -1,0 +1,10 @@
+{
+  "name": "mn-lakes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minnesota Lake & Fish Finder — static map of MN lakes scored from DNR survey data",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "start": "python3 -m http.server 8000"
+  }
+}
