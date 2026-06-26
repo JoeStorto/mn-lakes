@@ -145,12 +145,55 @@
   .lbar{flex:1;height:28px;display:flex;align-items:flex-end}
   .lbar-fill{width:100%;border-radius:1px;min-height:0}
   .len-axis{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:8px;color:var(--ink-soft);margin-top:3px}
+
+  /* collapse toggles — hidden on desktop, shown on phones */
+  .collapse-btn{display:none}
+  .legend-head{display:none}
+
+  /* ---------- MOBILE ---------- */
+  @media(max-width:600px){
+    .collapse-btn{display:flex;align-items:center;justify-content:center;position:absolute;top:8px;right:8px;
+      width:26px;height:26px;border-radius:50%;border:1px solid rgba(243,236,224,.3);
+      background:rgba(255,255,255,.06);color:var(--land);font-size:11px;cursor:pointer;transition:transform .2s}
+    #brand.collapsed .collapse-btn{transform:rotate(-90deg)}
+
+    /* Brand: compact bar across the top */
+    #brand{top:8px;left:8px;right:8px;max-width:none;padding:9px 38px 10px 12px;border-radius:6px}
+    #brand h1{font-size:17px}
+    #brand .kicker{font-size:8px;letter-spacing:.18em;margin-bottom:3px}
+    #brand p{font-size:10.5px;margin-top:6px}
+    #search{margin-top:8px}
+    #search input{padding:8px 9px;font-size:16px}      /* 16px stops iOS zoom-on-focus */
+    #infoBtn{margin-top:8px;padding:7px 9px}
+    /* collapsed: just the title + search stay visible */
+    #brand.collapsed .kicker,#brand.collapsed p,#brand.collapsed #infoBtn{display:none}
+    #brand.collapsed h1{font-size:15px}
+
+    /* Info panel: full-width sheet under the brand */
+    #infoPanel{top:8px;left:8px;right:8px;width:auto;max-width:none;padding:18px 16px 20px}
+
+    /* Legend: compact, collapsible card along the bottom */
+    #legend{left:8px;right:8px;bottom:8px;width:auto;padding:10px 12px;border-radius:6px}
+    .legend-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+      font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+      color:var(--gold);margin-bottom:10px}
+    .legend-head .chev{transition:transform .2s}
+    #legend.collapsed .chev{transform:rotate(-90deg)}
+    #legend.collapsed > *:not(.legend-head){display:none}
+    #legend.collapsed{padding-bottom:10px}
+    #legend.collapsed .legend-head{margin-bottom:0}
+    select#species,select#metric{padding:8px 9px;font-size:16px}   /* 16px = no iOS zoom */
+    .ramp{margin-top:10px}
+    #depthfilter{margin-top:11px;padding-top:10px}
+    #roadtoggle{margin-top:9px}
+  }
 </style>
 </head>
 <body>
 <div id="app">
   <div id="map"></div>
   <div id="brand">
+    <button class="collapse-btn" onclick="toggleCollapse('brand')" aria-label="Toggle panel">&#9662;</button>
     <div class="kicker">Land of 10,000 Lakes</div>
     <h1>Minnesota <em>Shallow-Lake</em> Fish Finder</h1>
     <p>Minnesota lakes scored for your target species, with an adjustable mean-depth filter. Pick a species and a measure; <b class="r">red</b> = worse, <b class="b">blue</b> = better. Real MN DNR survey data.</p>
@@ -173,7 +216,7 @@
     <p>Five species only: <b>walleye, muskie, northern pike, largemouth bass, smallmouth bass</b>. Muskie are naturally low-density and sparsely netted, so they appear in only a handful of lakes (often tiny sample sizes).</p>
 
     <h3>The three measures</h3>
-    <p><b>Population density</b> &mdash; total fish caught per square mile of lake, from the most recent survey. It reflects survey effort, so read it as relative abundance, not a literal headcount.</p>
+    <p><b>Population density</b> &mdash; total fish caught per square mile of lake, from the most recent survey. Lakes are colored by their <b>percentile rank</b> against every other lake for that species, so the middle of the ramp is a typical lake. It reflects survey effort (and small lakes read denser than big ones), so treat it as relative abundance, not a literal headcount.</p>
     <p><b>Biggest fish</b> &mdash; average <b>weight</b> for bass &amp; walleye; average <b>length</b> for pike &amp; muskie (the measure anglers actually use for those two).</p>
     <p><b>Pressure trend</b> &mdash; the direction of catch rate fitted across multiple surveys: red = declining, blue = improving.</p>
 
@@ -189,6 +232,7 @@
     <p class="info-src">Sources: MN DNR lake morphology, catch (CPUE), and length-frequency files (static export, newest survey Dec 2023); state boundary &amp; roads from Natural Earth. Live DNR data has newer surveys.</p>
   </div>
   <div id="legend">
+    <div class="legend-head" onclick="toggleCollapse('legend')">Map controls<span class="chev">&#9662;</span></div>
     <div class="lbl">Species</div>
     <select id="species"></select>
     <div class="lbl" style="margin-top:11px">Color lakes by</div>
@@ -244,12 +288,18 @@ Object.keys(SPECIES_META).forEach(sp=>{
     if(r.rWeight)wt.push(r.rWeight);
     if(r.lenMean)ln.push(r.lenMean);
     if(r.trendSlope!=null)sl.push(Math.abs(r.trendSlope));});
-  SPECIES_STATS[sp]={denLo:pctile(den,0.05),denHi:pctile(den,0.95),
+  SPECIES_STATS[sp]={denLo:pctile(den,0.05),denHi:pctile(den,0.95),denSorted:[...den].sort((a,b)=>a-b),
     wtLo:pctile(wt,0.05),wtHi:pctile(wt,0.95),lenLo:pctile(ln,0.05),lenHi:pctile(ln,0.95),
     slScale:pctile(sl,0.90)||0.01};
 });
 function norm01(v,lo,hi){if(v==null||lo==null||hi==null||hi<=lo)return null;return Math.max(0,Math.min(1,(v-lo)/(hi-lo)));}
-function densityScore(rec,sp){const s=SPECIES_STATS[sp];if(!s)return null;return rec.rDensity!=null?norm01(rec.rDensity,s.denLo,s.denHi):null;}
+/* percentile rank of v within a sorted array (midrank, ~0..1) — even color spread, immune to the
+   long right-tail/area skew that pinned big lakes at "Sparse" and bunched everyone else in red. */
+function pctRank(sorted,v){if(!sorted||!sorted.length||v==null)return null;const n=sorted.length;
+  let lo=0,hi=n;while(lo<hi){const m=(lo+hi)>>1;sorted[m]<v?lo=m+1:hi=m;}const less=lo;
+  let lo2=0,hi2=n;while(lo2<hi2){const m=(lo2+hi2)>>1;sorted[m]<=v?lo2=m+1:hi2=m;}const leq=lo2;
+  return (less+leq)/2/n;}
+function densityScore(rec,sp){const s=SPECIES_STATS[sp];if(!s)return null;return rec.rDensity!=null?pctRank(s.denSorted,rec.rDensity):null;}
 function sizeScore(rec,sp){const s=SPECIES_STATS[sp];if(!s)return null;
   if(LEN_SPECIES.has(sp))return rec.lenMean?norm01(rec.lenMean,s.lenLo,s.lenHi):null;   /* length for pike & muskie */
   return rec.rWeight?norm01(rec.rWeight,s.wtLo,s.wtHi):null;                            /* weight for bass & walleye */
@@ -300,7 +350,8 @@ function toggleRoads(on){if(on)roadLayer.addTo(map);else map.removeLayer(roadLay
 
 /* Minneapolis reference marker (for distance reference) */
 const MPLS=[44.9778,-93.2650];
-L.circleMarker(MPLS,{radius:7,fillColor:'#39d353',fillOpacity:1,color:'#0a1116',weight:1.5,opacity:1})
+const MPLS_R=window.matchMedia('(max-width:600px)').matches?4.5:7;
+L.circleMarker(MPLS,{radius:MPLS_R,fillColor:'#39d353',fillOpacity:1,color:'#0a1116',weight:1.5,opacity:1})
   .addTo(map)
   .bindTooltip('<b>Minneapolis</b><span class="tc">distance reference</span>',{direction:'top',className:'lk-tip'});
 
@@ -324,8 +375,9 @@ function syncDepth(e){let lo=+dmin.value,hi=+dmax.value;
   depthval.innerHTML=`${lo}&ndash;${hi} ft`;render();}
 dmin.addEventListener('input',syncDepth);dmax.addEventListener('input',syncDepth);
 
-/* radius by area */
-function radiusFor(area){if(!area)return 4;return Math.max(4,Math.min(10,Math.sqrt(area)*0.035+3.5));}
+/* radius by area (markers shrink on small screens) */
+const MARKER_SCALE=window.matchMedia('(max-width:600px)').matches?0.6:1;
+function radiusFor(area){const r=!area?4:Math.max(4,Math.min(10,Math.sqrt(area)*0.035+3.5));return r*MARKER_SCALE;}
 
 let layer=L.layerGroup().addTo(map);
 const markerById={};
@@ -477,7 +529,7 @@ function openLake(lake){
     <div class="section-h"><h3>Target species present</h3></div>
     <div class="specieslist">${chips}</div>
     <div class="datanote"><b>Real DNR data</b>
-     <p>Population density = total fish caught per square mile of lake (most recent survey, 2019&ndash;2023). Size and trend come from the same MN DNR fisheries surveys. Density reflects survey effort, so read it as relative abundance, not an exact headcount.</p></div></div>`;
+     <p>Population density = total fish caught per square mile of lake (most recent survey, 2019&ndash;2023). Map color is the lake's percentile rank vs all other lakes for that species. Size and trend come from the same MN DNR fisheries surveys. Density reflects survey effort, so read it as relative abundance, not an exact headcount.</p></div></div>`;
   panel.classList.add('open');setTimeout(()=>map.invalidateSize(),360);
   map.flyTo([lake.lat,lake.lon],Math.max(map.getZoom(),10),{duration:.6});
 }
@@ -485,6 +537,13 @@ function closePanel(){panel.classList.remove('open');setTimeout(()=>map.invalida
 window.closePanel=closePanel;
 function toggleInfo(){document.getElementById('infoPanel').classList.toggle('open');}
 window.toggleInfo=toggleInfo;
+function toggleCollapse(id){document.getElementById(id).classList.toggle('collapsed');}
+window.toggleCollapse=toggleCollapse;
+/* On phones: start the brand card collapsed and move zoom control clear of it */
+if(window.matchMedia('(max-width:600px)').matches){
+  document.getElementById('brand').classList.add('collapsed');
+  map.zoomControl.setPosition('topright');
+}
 })();
 </script>
 
