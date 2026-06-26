@@ -326,7 +326,10 @@ const RDBU=[[178,24,43],[214,96,77],[244,165,130],[247,247,247],[146,197,222],[6
 function scoreColor(t){if(t==null)return '#8b8275';t=Math.max(0,Math.min(1,t));const x=t*(RDBU.length-1),i=Math.floor(x),lt=x-i;
   const a=RDBU[i],b=RDBU[Math.min(i+1,RDBU.length-1)];return`rgb(${a.map((v,k)=>Math.round(v+(b[k]-v)*lt)).join(',')})`;}
 
-const map=L.map('map',{zoomControl:true,attributionControl:true,minZoom:6,maxZoom:14,preferCanvas:true}).setView([46.5,-94.3],6);
+const IS_MOBILE=window.matchMedia('(max-width:600px)').matches;
+/* On phones, expand each marker's tappable area well beyond its drawn radius so small circles are easy to hit */
+const markerRenderer=L.canvas({tolerance:IS_MOBILE?16:0});
+const map=L.map('map',{zoomControl:true,attributionControl:true,minZoom:6,maxZoom:14,preferCanvas:true,renderer:markerRenderer}).setView([46.5,-94.3],6);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
   attribution:'Imagery &copy; Esri, Maxar &middot; Lake &amp; fish data: MN DNR',maxZoom:14}).addTo(map);
 
@@ -350,7 +353,7 @@ function toggleRoads(on){if(on)roadLayer.addTo(map);else map.removeLayer(roadLay
 
 /* Minneapolis reference marker (for distance reference) */
 const MPLS=[44.9778,-93.2650];
-const MPLS_R=window.matchMedia('(max-width:600px)').matches?4.5:7;
+const MPLS_R=IS_MOBILE?4.5:7;
 L.circleMarker(MPLS,{radius:MPLS_R,fillColor:'#39d353',fillOpacity:1,color:'#0a1116',weight:1.5,opacity:1})
   .addTo(map)
   .bindTooltip('<b>Minneapolis</b><span class="tc">distance reference</span>',{direction:'top',className:'lk-tip'});
@@ -376,7 +379,7 @@ function syncDepth(e){let lo=+dmin.value,hi=+dmax.value;
 dmin.addEventListener('input',syncDepth);dmax.addEventListener('input',syncDepth);
 
 /* radius by area (markers shrink on small screens) */
-const MARKER_SCALE=window.matchMedia('(max-width:600px)').matches?0.6:1;
+const MARKER_SCALE=IS_MOBILE?0.6:1;
 function radiusFor(area){const r=!area?4:Math.max(4,Math.min(10,Math.sqrt(area)*0.035+3.5));return r*MARKER_SCALE;}
 
 let layer=L.layerGroup().addTo(map);
@@ -540,7 +543,7 @@ window.toggleInfo=toggleInfo;
 function toggleCollapse(id){document.getElementById(id).classList.toggle('collapsed');}
 window.toggleCollapse=toggleCollapse;
 /* On phones: start the brand card collapsed and move zoom control clear of it */
-if(window.matchMedia('(max-width:600px)').matches){
+if(IS_MOBILE){
   document.getElementById('brand').classList.add('collapsed');
   map.zoomControl.setPosition('topright');
 }
