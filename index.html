@@ -82,8 +82,16 @@
   .dual input{position:absolute;top:0;left:0;width:100%;margin:0;height:22px;-webkit-appearance:none;appearance:none;background:transparent;pointer-events:none}
   .dual input::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:all;width:15px;height:15px;border-radius:50%;background:var(--land);border:2px solid var(--gold);cursor:pointer}
   .dual input::-moz-range-thumb{pointer-events:all;width:15px;height:15px;border-radius:50%;background:var(--land);border:2px solid var(--gold);cursor:pointer;border-style:solid}
-  #roadtoggle{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:11px;color:rgba(243,236,224,.7);cursor:pointer;user-select:none}
+  #roadtoggle,#monstertoggle{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:11px;color:rgba(243,236,224,.7);cursor:pointer;user-select:none}
   #roadtoggle input{accent-color:#ff8c42;cursor:pointer}
+  #monstertoggle{margin-top:12px;padding-top:12px;border-top:1px solid rgba(243,236,224,.14);color:var(--gold);font-weight:500}
+  #monstertoggle input{accent-color:#e0a32e;cursor:pointer}
+  #accessfilter{margin-top:11px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  #accessfilter .seg{display:flex;border:1px solid rgba(243,236,224,.25);border-radius:4px;overflow:hidden}
+  #accessfilter .seg input{position:absolute;opacity:0;pointer-events:none}
+  #accessfilter .seg span{display:block;padding:4px 10px;font-size:10.5px;color:rgba(243,236,224,.7);cursor:pointer;border-left:1px solid rgba(243,236,224,.16)}
+  #accessfilter .seg label:first-child span{border-left:none}
+  #accessfilter .seg input:checked+span{background:#7fb0e0;color:#06141d;font-weight:600}
 
   #panel{width:0;flex-shrink:0;height:100%;background:var(--land);box-shadow:-8px 0 30px rgba(0,0,0,.45);
     overflow-y:auto;overflow-x:hidden;transition:width .34s cubic-bezier(.22,1,.36,1);position:relative;z-index:1100}
@@ -131,6 +139,24 @@
   .datanote{margin-top:24px;padding:13px 14px;border-radius:5px;background:rgba(33,102,172,.08);border:1px solid rgba(33,102,172,.28)}
   .datanote b{font-size:11.5px;color:#2166ac;font-family:'Space Mono',monospace;letter-spacing:.05em;text-transform:uppercase}
   .datanote p{font-size:11.5px;color:var(--ink-soft);line-height:1.55;margin-top:5px}
+  /* boat access + stocking */
+  .access-badge{display:inline-flex;align-items:center;gap:5px;margin-top:12px;padding:5px 11px;border-radius:20px;
+    font-size:11.5px;font-weight:600;background:rgba(33,102,172,.12);color:#2166ac;border:1px solid rgba(33,102,172,.32)}
+  .access-badge.none{background:rgba(120,120,120,.1);color:var(--ink-soft);border-color:var(--chart-line);font-weight:500}
+  .access-list{margin-top:10px;display:flex;flex-direction:column;gap:7px}
+  .access-item{font-size:11.5px;color:var(--ink-soft);line-height:1.45;padding-left:19px;position:relative}
+  .access-item:before{content:'\1F6A4';position:absolute;left:0;top:1px;font-size:11px}
+  .access-item b{color:var(--ink);font-weight:600}
+  .stocking{margin-top:6px}
+  .stock-row{display:flex;align-items:baseline;gap:8px;font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--chart-line)}
+  .stock-row:last-child{border-bottom:none}
+  .stock-yr{font-family:'Space Mono',monospace;font-weight:700;color:var(--ink);width:36px;flex-shrink:0}
+  .stock-sp{color:var(--ink);font-weight:600}.stock-sz{color:var(--ink-soft)}
+  .stock-meta{color:var(--ink-soft);margin-left:auto;font-family:'Space Mono',monospace;font-size:10.5px;white-space:nowrap}
+  .stock-tag{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.05em;text-transform:uppercase;padding:2px 5px;border-radius:3px;margin-left:6px;white-space:nowrap}
+  .stock-tag.maintained{background:rgba(224,163,46,.18);color:#9a7d3a}
+  .stock-tag.natural{background:rgba(33,102,172,.13);color:#2166ac}
+  .mon-tag{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.04em;text-transform:uppercase;padding:2px 5px;border-radius:3px;margin-left:6px;white-space:nowrap;background:rgba(224,163,46,.2);color:#9a7d3a;font-weight:700}
   .empty{padding:64px 30px;text-align:center;color:var(--ink-soft);width:420px}@media(max-width:780px){.empty{width:100vw}}
   .empty .ic{font-size:34px;opacity:.4;margin-bottom:14px}.empty p{font-size:13px;line-height:1.6;max-width:240px;margin:0 auto}
   #panel::-webkit-scrollbar{width:10px}#panel::-webkit-scrollbar-track{background:var(--land)}
@@ -210,7 +236,7 @@
     <p class="info-lead">A fishing-scout map of Minnesota's shallow lakes, built entirely from Minnesota DNR fisheries survey data.</p>
 
     <h3>Which lakes</h3>
-    <p>Minnesota lakes that have a DNR-recorded <b>mean depth</b> and survey records for at least one target species (<span id="lakeCount">387</span> lakes, mean depth 2&ndash;81 ft). Use the <b>mean-depth slider</b> in the legend to narrow the range &mdash; e.g. pull it to 10&ndash;25 ft for classic shallow walleye/bass water, or open it wide. The DNR only records mean depth for surveyed lakes, so this is the surveyed-lake subset &mdash; not every lake in the state.</p>
+    <p>Minnesota lakes with DNR survey records for at least one target species (<span id="lakeCount">387</span> lakes statewide). Use the <b>mean-depth slider</b> in the legend to narrow by depth (2&ndash;115 ft) &mdash; e.g. pull it to 10&ndash;25 ft for classic shallow walleye/bass water. The DNR records mean depth only for some lakes; lakes <b>without</b> a recorded mean depth ignore the slider and always appear (their panel notes "depth unknown").</p>
 
     <h3>Which fish</h3>
     <p>Five species only: <b>walleye, muskie, northern pike, largemouth bass, smallmouth bass</b>. Muskie are naturally low-density and sparsely netted, so they appear in only a handful of lakes (often tiny sample sizes).</p>
@@ -244,12 +270,21 @@
     <div class="ramp"><div class="bar"></div>
       <div class="ends"><span class="lo" id="rampLo">&#9664; Below normal</span><span class="hi" id="rampHi">Above normal &#9654;</span></div></div>
     <div id="depthfilter">
-      <div class="row"><span class="lbl2">Mean depth</span><span class="val" id="depthval">2&ndash;81 ft</span></div>
+      <div class="row"><span class="lbl2">Mean depth</span><span class="val" id="depthval">2&ndash;115 ft</span></div>
       <div class="dual" id="dual"><div class="track"></div><div class="fill" id="dfill"></div>
-        <input type="range" id="dmin" min="2" max="81" step="1" value="2">
-        <input type="range" id="dmax" min="2" max="81" step="1" value="81"></div>
+        <input type="range" id="dmin" min="2" max="115" step="1" value="2">
+        <input type="range" id="dmax" min="2" max="115" step="1" value="115"></div>
     </div>
     <div id="depthcount"></div>
+    <label id="monstertoggle"><input type="checkbox" id="monsterchk"> <span>&#127942; Monster lakes &mdash; color by trophy count</span></label>
+    <div id="accessfilter">
+      <span class="lbl2">Boat access</span>
+      <div class="seg">
+        <label><input type="radio" name="acc" value="all" checked><span>All</span></label>
+        <label><input type="radio" name="acc" value="with"><span>With</span></label>
+        <label><input type="radio" name="acc" value="without"><span>Without</span></label>
+      </div>
+    </div>
     <label id="roadtoggle"><input type="checkbox" id="roadchk" checked> <span>Show highways &amp; interstates</span></label>
   </div>
   <aside id="panel"><div id="panel-content">
@@ -262,10 +297,12 @@
 (async function(){
 let MN_RING, LAKES, MN_ROADS;
 try{
+  /* no-cache => always revalidate so a re-pulled data file loads fresh (cheap 304 when unchanged) */
+  const opt={cache:'no-cache'};
   [MN_RING, LAKES, MN_ROADS] = await Promise.all([
-    fetch('data/mn_boundary.json').then(r=>r.json()),
-    fetch('data/full_lakes.json').then(r=>r.json()),
-    fetch('data/mn_roads.json').then(r=>r.json())
+    fetch('data/mn_boundary.json',opt).then(r=>r.json()),
+    fetch('data/full_lakes.json',opt).then(r=>r.json()),
+    fetch('data/mn_roads.json',opt).then(r=>r.json())
   ]);
 }catch(err){
   document.getElementById('map').innerHTML='<div style="color:#f3ece0;font-family:sans-serif;padding:40px;max-width:520px;line-height:1.5">'+
@@ -282,16 +319,21 @@ const LEN_SPECIES=new Set(["Northern Pike","Muskie"]);
 function pctile(arr,p){if(!arr.length)return null;const s=[...arr].sort((a,b)=>a-b);const i=Math.min(s.length-1,Math.max(0,Math.round(p*(s.length-1))));return s[i];}
 const SPECIES_STATS={};
 Object.keys(SPECIES_META).forEach(sp=>{
-  const den=[],wt=[],ln=[],sl=[];
+  const den=[],wt=[],ln=[],sl=[],mon=[];
   LAKES.forEach(l=>{const r=l.fish.find(f=>f.species===sp);if(!r)return;
     if(r.rDensity!=null)den.push(r.rDensity);
     if(r.rWeight)wt.push(r.rWeight);
     if(r.lenMean)ln.push(r.lenMean);
-    if(r.trendSlope!=null)sl.push(Math.abs(r.trendSlope));});
+    if(r.trendSlope!=null)sl.push(Math.abs(r.trendSlope));
+    if(r.monN!=null&&r.monN>0)mon.push(r.monN);});       /* trophy counts for monster mode */
   SPECIES_STATS[sp]={denLo:pctile(den,0.05),denHi:pctile(den,0.95),denSorted:[...den].sort((a,b)=>a-b),
     wtLo:pctile(wt,0.05),wtHi:pctile(wt,0.95),lenLo:pctile(ln,0.05),lenHi:pctile(ln,0.95),
-    slScale:pctile(sl,0.90)||0.01};
+    slScale:pctile(sl,0.90)||0.01, monHi:pctile(mon,0.90)||2};
 });
+/* "blue" end of the trophy-count scale for the All-species view (sum across species) */
+const MON_ALL_HI=(()=>{const s=[];LAKES.forEach(l=>{let t=0,a=false;l.fish.forEach(f=>{if(f.monN!=null){a=true;t+=f.monN;}});if(a&&t>0)s.push(t);});return pctile(s,0.90)||2;})();
+/* trophy length thresholds (inches) — keep in sync with enrich_lakes.py MONSTER_LEN */
+const MONSTER_LEN={Walleye:26,"Northern Pike":34,Muskie:45,"Largemouth Bass":19,"Smallmouth Bass":18};
 function norm01(v,lo,hi){if(v==null||lo==null||hi==null||hi<=lo)return null;return Math.max(0,Math.min(1,(v-lo)/(hi-lo)));}
 /* percentile rank of v within a sorted array (midrank, ~0..1) — even color spread, immune to the
    long right-tail/area skew that pinned big lakes at "Sparse" and bunched everyone else in red. */
@@ -306,13 +348,25 @@ function sizeScore(rec,sp){const s=SPECIES_STATS[sp];if(!s)return null;
 }
 function trendScore(rec,sp){const s=SPECIES_STATS[sp];if(!s||rec.trendSlope==null)return null;
   return Math.max(0,Math.min(1,0.5+0.5*(rec.trendSlope/s.slScale)));} /* declining<0.5<improving */
+function pluralSp(sp){const s=sp.toLowerCase();return s.endsWith('s')?s+'es':s+'s';}
+/* MONSTER: quantity of trophy-class fish (count), not size. 1 trophy = red, many = blue. */
+function monsterCount(lake,sp){
+  if(sp!=='All'){const r=lake.fish.find(f=>f.species===sp);return r&&r.monN!=null?r.monN:null;}
+  let any=false,t=0;lake.fish.forEach(f=>{if(f.monN!=null){any=true;t+=f.monN;}});return any?t:null;
+}
+function recMonsterScore(rec,sp){const s=SPECIES_STATS[sp];if(!s||rec.monN==null||rec.monN<1)return null;
+  return norm01(rec.monN,1,Math.max(2,s.monHi));}
 function metricScore(rec,sp,metric){
+  if(metric==='monster')return recMonsterScore(rec,sp);
   if(metric==='size')return sizeScore(rec,sp);
   if(metric==='trend')return trendScore(rec,sp);
   return densityScore(rec,sp);
 }
 /* score a whole lake for the current species selection (handles "All") */
 function lakeScore(lake,sp,metric){
+  if(metric==='monster'){const c=monsterCount(lake,sp);if(c==null||c<1)return null;
+    const hi=sp==='All'?MON_ALL_HI:(SPECIES_STATS[sp]&&SPECIES_STATS[sp].monHi);
+    return norm01(c,1,Math.max(2,hi||2));}
   if(sp!=='All'){const r=lake.fish.find(f=>f.species===sp);return r?metricScore(r,sp,metric):null;}
   const vals=lake.fish.map(f=>metricScore(f,f.species,metric)).filter(v=>v!=null);
   return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
@@ -321,7 +375,8 @@ function trendDir(rec,sp){const s=SPECIES_STATS[sp];if(!s||rec.trendSlope==null)
   return rec.trendSlope>sc?1:(rec.trendSlope<-sc?-1:0);}
 const RAMP_LABELS={density:['&#9664; Sparse','Dense &#9654;'],
   size:['&#9664; Smaller fish','Bigger fish &#9654;'],
-  trend:['&#9664; Declining','Improving &#9654;']};
+  trend:['&#9664; Declining','Improving &#9654;'],
+  monster:['&#9664; 1 trophy','Many trophies &#9654;']};
 const RDBU=[[178,24,43],[214,96,77],[244,165,130],[247,247,247],[146,197,222],[67,147,195],[33,102,172]];
 function scoreColor(t){if(t==null)return '#8b8275';t=Math.max(0,Math.min(1,t));const x=t*(RDBU.length-1),i=Math.floor(x),lt=x-i;
   const a=RDBU[i],b=RDBU[Math.min(i+1,RDBU.length-1)];return`rgb(${a.map((v,k)=>Math.round(v+(b[k]-v)*lt)).join(',')})`;}
@@ -330,13 +385,15 @@ const IS_MOBILE=window.matchMedia('(max-width:600px)').matches;
 /* On phones, expand each marker's tappable area well beyond its drawn radius so small circles are easy to hit */
 const markerRenderer=L.canvas({tolerance:IS_MOBILE?16:0});
 const map=L.map('map',{zoomControl:true,attributionControl:true,minZoom:6,maxZoom:14,preferCanvas:true,renderer:markerRenderer}).setView([46.5,-94.3],6);
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
-  attribution:'Imagery &copy; Esri, Maxar &middot; Lake &amp; fish data: MN DNR',maxZoom:14}).addTo(map);
 
 const MN_LATLNG=MN_RING.map(p=>[p[1],p[0]]);const mnBounds=L.latLngBounds(MN_LATLNG);
+/* bounds:mnBounds => Leaflet never requests/draws imagery tiles that fall entirely outside Minnesota */
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+  attribution:'Imagery &copy; Esri, Maxar &middot; Lake &amp; fish data: MN DNR',maxZoom:14,
+  bounds:mnBounds,noWrap:true}).addTo(map);
 L.polygon([[[-85,-179.9],[-85,179.9],[85,179.9],[85,-179.9]],MN_LATLNG],{stroke:false,fillColor:'#06141d',fillOpacity:0.74,interactive:false}).addTo(map);
 L.polyline(MN_LATLNG.concat([MN_LATLNG[0]]),{color:'#ffd98a',weight:1.4,opacity:.85,interactive:false}).addTo(map);
-map.fitBounds(mnBounds,{padding:[20,20]});map.setMaxBounds(mnBounds.pad(0.4));
+map.fitBounds(mnBounds,{padding:[20,20]});map.setMaxBounds(mnBounds.pad(0.25));
 
 /* highways & interstates (non-interactive, under lake markers) */
 const roadLayer=L.layerGroup().addTo(map);
@@ -344,6 +401,7 @@ try{
   (Array.isArray(MN_ROADS)?MN_ROADS:[]).forEach(r=>{
     if(!r||!Array.isArray(r.c))return;            // tolerate a malformed roads file
     const latlng=r.c.map(p=>[p[1],p[0]]);
+    if(!latlng.some(ll=>mnBounds.contains(ll)))return;   // drop segments entirely outside MN
     const iste=r.t==='interstate';
     L.polyline(latlng,{color:iste?'#ff8c42':'#cdbb8f',
       weight:iste?2.2:1,opacity:iste?0.85:0.5,interactive:false,lineJoin:'round'}).addTo(roadLayer);
@@ -364,18 +422,22 @@ Object.keys(SPECIES_META).forEach(s=>{const o=document.createElement('option');o
 speciesSel.value="Walleye";
 const lcEl=document.getElementById('lakeCount');if(lcEl)lcEl.textContent=LAKES.length;
 document.getElementById('roadchk').addEventListener('change',e=>toggleRoads(e.target.checked));
+let accessFilter='all',monsterOnly=false;
+document.querySelectorAll('input[name="acc"]').forEach(r=>r.addEventListener('change',e=>{if(e.target.checked){accessFilter=e.target.value;scheduleRender();}}));
+document.getElementById('monsterchk').addEventListener('change',e=>{monsterOnly=e.target.checked;metricSel.disabled=monsterOnly;scheduleRender();});
 
 /* depth filter */
 const depthcount=document.getElementById('depthcount');
 /* mean-depth filter */
-let depthMin=2,depthMax=81;
+let depthMin=2,depthMax=115;
 const dmin=document.getElementById('dmin'),dmax=document.getElementById('dmax'),
   dfill=document.getElementById('dfill'),depthval=document.getElementById('depthval');
-function syncDepth(e){let lo=+dmin.value,hi=+dmax.value;
+function syncDepthUI(e){let lo=+dmin.value,hi=+dmax.value;
   if(lo>hi){if(e&&e.target===dmin){hi=lo;dmax.value=hi;}else{lo=hi;dmin.value=lo;}}
   depthMin=lo;depthMax=hi;const span=(+dmax.max)-(+dmax.min);
   dfill.style.left=((lo-(+dmax.min))/span*100)+'%';dfill.style.width=((hi-lo)/span*100)+'%';
-  depthval.innerHTML=`${lo}&ndash;${hi} ft`;render();}
+  depthval.innerHTML=`${lo}&ndash;${hi} ft`;}
+function syncDepth(e){syncDepthUI(e);scheduleRender();}
 dmin.addEventListener('input',syncDepth);dmax.addEventListener('input',syncDepth);
 
 /* radius by area (markers shrink on small screens) */
@@ -386,35 +448,68 @@ let layer=L.layerGroup().addTo(map);
 const markerById={};
 const metricSel=document.getElementById('metric');
 const rampLo=document.getElementById('rampLo'),rampHi=document.getElementById('rampHi');
-function render(){
-  layer.clearLayers();
-  const sp=speciesSel.value, metric=metricSel.value;let shown=0;
-  const [lo,hi]=RAMP_LABELS[metric];rampLo.innerHTML=lo;rampHi.innerHTML=hi;
-  LAKES.forEach(lake=>{
-    if(lake.meanDepth==null||lake.meanDepth<depthMin||lake.meanDepth>depthMax)return;
-    shown++;
-    const score=lakeScore(lake,sp,metric);
-    const rec=sp!=='All'?lake.fish.find(r=>r.species===sp):null;
-    const color=scoreColor(score);
-    const m=L.circleMarker([lake.lat,lake.lon],{radius:radiusFor(lake.area),
-      fillColor:color,fillOpacity:score!=null?0.88:0.4,color:'#0a1116',weight:0.6,opacity:0.7});
-    let tipMetric;
-    if(sp==='All'){const lbl=metric==='size'?'size':metric==='trend'?'trend':'density';
-      tipMetric=score!=null?(`${lake.fish.length} species &middot; ${bucket(score)} ${lbl}`):'no data';}
-    else if(!rec)tipMetric=sp+': n/a';
-    else tipMetric=
-      metric==='size'?(LEN_SPECIES.has(sp)?(rec.lenMean?rec.lenMean+'" avg':'no recent length'):(rec.rWeight?rec.rWeight+' lb avg':'no recent weight')):
-      metric==='trend'?(rec.trendSlope!=null?({'-1':'declining','0':'stable','1':'improving'})[trendDir(rec,sp)]:'no trend data'):
-      (rec.rDensity!=null?rec.rDensity+' /sq mi':'no recent survey');
-    m.bindTooltip(`<b>${lake.name}</b><span class="tc">${sp==='All'?'All species':sp} &middot; ${tipMetric}</span>`,{direction:'top',className:'lk-tip'});
-    m.on('click',()=>openLake(lake));
-    m.addTo(layer);markerById[lake.id]=m;
-  });
-  depthcount.innerHTML=`<b>${shown}</b> lakes shown &middot; mean depth ${depthMin}&ndash;${depthMax} ft`;
+
+/* Current view state, read lazily when a tooltip opens — so we never build 1,557 tip strings per render. */
+const view={sp:'Walleye',metric:'density'};
+function tipFor(lake){
+  const {sp,metric}=view, monster=metric==='monster';
+  const rec=sp!=='All'?lake.fish.find(r=>r.species===sp):null;
+  let tipMetric;
+  if(monster){const c=monsterCount(lake,sp);
+    tipMetric=sp==='All'?`${c} trophy fish across species`
+      :`${c} trophy ${c===1?sp.toLowerCase():pluralSp(sp)}${rec&&rec.bigLen?` &middot; biggest ${rec.bigLen}"`:''}`;}
+  else if(sp==='All'){const score=lakeScore(lake,sp,metric);const lbl=metric==='size'?'size':metric==='trend'?'trend':'density';
+    tipMetric=score!=null?(`${lake.fish.length} species &middot; ${bucket(score)} ${lbl}`):'no data';}
+  else if(!rec)tipMetric=sp+': n/a';
+  else tipMetric=
+    metric==='size'?(LEN_SPECIES.has(sp)?(rec.lenMean?rec.lenMean+'" avg':'no recent length'):(rec.rWeight?rec.rWeight+' lb avg':'no recent weight')):
+    metric==='trend'?(rec.trendSlope!=null?({'-1':'declining','0':'stable','1':'improving'})[trendDir(rec,sp)]:'no trend data'):
+    (rec.rDensity!=null?rec.rDensity+' /sq mi':'no recent survey');
+  return `<b>${lake.name}</b><span class="tc">${sp==='All'?'All species':sp} &middot; ${tipMetric}</span>`;
 }
-speciesSel.addEventListener('change',render);
-metricSel.addEventListener('change',render);
-syncDepth();
+
+/* Build every marker ONCE. render() only restyles / shows / hides them — no per-interaction allocation. */
+const markers=LAKES.map(lake=>{
+  const m=L.circleMarker([lake.lat,lake.lon],{radius:radiusFor(lake.area),
+    fillColor:'#8b8275',fillOpacity:0.4,color:'#0a1116',weight:0.6,opacity:0.7});
+  m._shown=false;   /* NB: don't name this _on — Leaflet's Evented uses ._on() internally */
+  m.on('click',()=>openLake(lake));
+  m.bindTooltip('',{direction:'top',className:'lk-tip'});
+  m.on('tooltipopen',()=>m.setTooltipContent(tipFor(lake)));  /* build content only for the hovered lake */
+  markerById[lake.id]=m;
+  return m;
+});
+
+function render(){
+  const sp=speciesSel.value, metric=monsterOnly?'monster':metricSel.value;
+  view.sp=sp;view.metric=metric;
+  let shown=0,noDepth=0;
+  const [lo,hi]=RAMP_LABELS[metric];rampLo.innerHTML=lo;rampHi.innerHTML=hi;
+  for(let i=0;i<LAKES.length;i++){
+    const lake=LAKES[i], m=markers[i];
+    /* depth filter only applies to lakes WITH a recorded mean depth; unknown-depth lakes always show.
+       3-way access filter — "with": hide known-no-access (unknown stays); "without": only known-no-access. */
+    const pass = !(lake.meanDepth!=null&&(lake.meanDepth<depthMin||lake.meanDepth>depthMax))
+      && !(accessFilter==='with'&&lake.access&&lake.access.has===false)
+      && !(accessFilter==='without'&&!(lake.access&&lake.access.has===false));
+    const score = pass ? lakeScore(lake,sp,metric) : null;
+    const visible = pass && !(monsterOnly && score==null);   /* monster mode: only lakes with >=1 trophy */
+    if(!visible){ if(m._shown){layer.removeLayer(m);m._shown=false;} continue; }
+    shown++;if(lake.meanDepth==null)noDepth++;
+    m.setStyle({fillColor:scoreColor(score),fillOpacity:score!=null?0.88:0.4});
+    if(!m._shown){layer.addLayer(m);m._shown=true;}
+  }
+  depthcount.innerHTML=monsterOnly
+    ?`<b>${shown}</b> lakes with trophy ${sp==='All'?'fish':pluralSp(sp)} &middot; color = how many`
+    :`<b>${shown}</b> lakes shown &middot; depth ${depthMin}&ndash;${depthMax} ft${noDepth?` <span style="opacity:.7">(incl. <b>${noDepth}</b> depth&nbsp;unknown)</span>`:''}`;
+}
+/* Coalesce rapid triggers (slider drag fires per-pixel) into at most one render per animation frame. */
+let _raf=0;
+function scheduleRender(){if(_raf)return;_raf=requestAnimationFrame(()=>{_raf=0;render();});}
+speciesSel.addEventListener('change',scheduleRender);
+metricSel.addEventListener('change',scheduleRender);
+syncDepthUI();   /* set slider fill + depth label without scheduling */
+render();        /* first paint is synchronous (rAF can be throttled on a backgrounded/first-frame tab) */
 
 /* search */
 const sb=document.getElementById('searchbox'),results=document.getElementById('results');
@@ -422,7 +517,7 @@ sb.addEventListener('input',()=>{const q=sb.value.trim().toLowerCase();
   if(q.length<2){results.style.display='none';return;}
   const hits=LAKES.filter(l=>l.name.toLowerCase().includes(q)).slice(0,8);
   if(!hits.length){results.style.display='none';return;}
-  results.innerHTML=hits.map(l=>`<div data-id="${l.id}">${l.name} <small>${l.county} Co &middot; ${l.meanDepth}ft</small></div>`).join('');
+  results.innerHTML=hits.map(l=>`<div data-id="${l.id}">${l.name} <small>${l.county} Co${l.meanDepth!=null?' &middot; '+l.meanDepth+'ft':''}</small></div>`).join('');
   results.style.display='block';
   results.querySelectorAll('div').forEach(d=>d.onclick=()=>{
     const lake=LAKES.find(l=>l.id===d.dataset.id);
@@ -476,14 +571,63 @@ function gaugeHTML(rec){
     <span class="scale-lbl" style="left:100%">${hiLbl}</span></div>`;
 }
 function bucket(s){return s==null?'':(s>0.66?'strong':(s<0.33?'low':'average'));}
+
+/* ---- boat access + stocking context ---- */
+const STOCK_CORE={Walleye:'walleye',Muskie:'musk','Northern Pike':'pike','Largemouth Bass':'largemouth','Smallmouth Bass':'smallmouth'};
+function stockYearFor(lake,disp){
+  if(!lake.stocking||!lake.stocking.species)return null;
+  const core=STOCK_CORE[disp];if(!core)return null;let best=null;
+  for(const k in lake.stocking.species){if(k.toLowerCase().includes(core)){const y=lake.stocking.species[k];if(best==null||y>best)best=y;}}
+  return best;
+}
+/* natural-vs-stocked tag — only meaningful for walleye & muskie (others self-sustain) */
+function stockTag(lake,disp){
+  if(disp!=='Walleye'&&disp!=='Muskie')return '';
+  const y=stockYearFor(lake,disp);
+  return y!=null?`<span class="stock-tag maintained">stocked &rsquo;${String(y).slice(2)}</span>`
+                :`<span class="stock-tag natural">wild</span>`;
+}
+/* trophy tag for a fish row — shows count of trophy-class fish + threshold */
+function monsterTag(rec){
+  if(rec.monN==null||rec.monN<1)return '';
+  const thr=MONSTER_LEN[rec.species];
+  return `<span class="mon-tag">&#127942; ${rec.monN} over ${thr}"</span>`;
+}
+function accessBadge(lake){
+  const a=lake.access;if(!a)return '';
+  if(!a.has)return `<span class="access-badge none">No public access on record</span>`;
+  const owners=a.owners&&a.owners.length?' &middot; '+a.owners.join(', '):'';
+  return `<span class="access-badge">&#128676; ${a.n} public access${a.n>1?'es':''}${owners}</span>`;
+}
+function accessHTML(lake){
+  const a=lake.access;if(!a||!a.has||!a.list||!a.list.length)return '';
+  const items=a.list.map(x=>`<div class="access-item">${x.owner?`<b>${x.owner}</b>`:''}${x.owner&&x.note?' &mdash; ':''}${x.note||''}</div>`).join('');
+  return `<div class="access-list">${items}</div>`;
+}
+function stockingHTML(lake){
+  const s=lake.stocking;if(!s||!s.recent||!s.recent.length)return '';
+  const rows=s.recent.slice(0,6).map(r=>`<div class="stock-row"><span class="stock-yr">${r.y}</span>
+    <span class="stock-sp">${r.sp}</span>${r.size?`<span class="stock-sz">${r.size}</span>`:''}
+    <span class="stock-meta">${r.n!=null?r.n.toLocaleString()+' fish':''}</span></div>`).join('');
+  return `<div class="section-h"><h3>Stocking history</h3><span class="note">DNR records</span></div>
+    <div class="hint">Stocking is an <b>input, not an outcome</b> &mdash; survival varies, so read it as context for the survey numbers above. Walleye &amp; muskie fisheries are often stocking-dependent; pike &amp; bass rarely need it.</div>
+    <div class="stocking">${rows}</div>`;
+}
 function openLake(lake){
-  const sp=speciesSel.value, metric=metricSel.value;
+  const sp=speciesSel.value, metric=monsterOnly?'monster':metricSel.value;
   const fish=[...lake.fish].sort((a,b)=>{if(a.species===sp)return-1;if(b.species===sp)return 1;
     return (metricScore(b,b.species,metric)??-1)-(metricScore(a,a.species,metric)??-1);});
   const selRec=lake.fish.find(r=>r.species===sp);const present=new Set(lake.fish.map(x=>x.species));
 
   let scoreCard;
-  if(sp==='All'){
+  if(metric==='monster'){
+    const c=monsterCount(lake,sp);const col=scoreColor(lakeScore(lake,sp,'monster'));let txt;
+    if(sp==='All'){txt=c?`This lake produced <b>${c}</b> trophy-class fish across target species in recent surveys.`:`No trophy-class fish recorded here.`;}
+    else{const r=lake.fish.find(x=>x.species===sp);const thr=MONSTER_LEN[sp];
+      txt=(r&&r.monN)?`<b>${sp}</b>: <b>${r.monN}</b> trophy fish (&ge;${thr}")${r.bigLen?` &mdash; biggest <b>${r.bigLen}"</b>`:''} in the latest survey.`
+                     :`No trophy <b>${sp}</b> (&ge;${thr}") recorded here.`;}
+    scoreCard=`<div class="lakescore"><div class="dot" style="background:${col}"></div><div class="txt">${txt}</div></div>`;
+  }else if(sp==='All'){
     const sc=lakeScore(lake,'All',metric);const col=scoreColor(sc);
     const lbl=metric==='size'?'fish size':metric==='trend'?'population trend':'fish density';
     scoreCard=`<div class="lakescore"><div class="dot" style="background:${col}"></div>
@@ -502,7 +646,8 @@ function openLake(lake){
 
   const fishHTML=fish.map(rec=>{
     const isLen=LEN_SPECIES.has(rec.species);
-    const hv = metric==='size' ? (isLen?(rec.lenMean?rec.lenMean+'<small>"</small>':'&mdash;'):(rec.rWeight?rec.rWeight+'<small> lb</small>':'&mdash;'))
+    const hv = metric==='monster' ? (rec.monN!=null?rec.monN+'<small> trophy</small>':'&mdash;')
+            : metric==='size' ? (isLen?(rec.lenMean?rec.lenMean+'<small>"</small>':'&mdash;'):(rec.rWeight?rec.rWeight+'<small> lb</small>':'&mdash;'))
             : metric==='trend' ? (()=>{const d=trendDir(rec,rec.species);return d==null?'&mdash;':(d>0?'&#9650;':(d<0?'&#9660;':'&#9644;'));})()
             : (rec.rDensity!=null?rec.rDensity+'<small> /sq&nbsp;mi</small>':'&mdash;');
     const sub=[];
@@ -510,7 +655,7 @@ function openLake(lake){
     if(rec.rDensity!=null)sub.push(rec.rDensity+'/sq mi');
     if(isLen){if(rec.lenMean)sub.push('avg '+rec.lenMean+'"');}else if(rec.rWeight)sub.push('avg '+rec.rWeight+' lb');
     return`<div class="fish"><div class="fish-top">
-       <div><span class="fish-name">${rec.species}</span>${verdictBadge(rec)}</div>
+       <div><span class="fish-name">${rec.species}</span>${verdictBadge(rec)}${stockTag(lake,rec.species)}${monsterTag(rec)}</div>
        <div class="fish-cpue" style="color:${scoreColor(metricScore(rec,rec.species,metric))}">${hv}</div></div>
        <div class="fish-gear">${rec.gear==='gn'?'Gill net':'Trap net'} &middot; ${sub.length?sub.join(' &middot; '):'no recent survey'} &middot; ${SPECIES_META[rec.species].abbr}</div>
        ${gaugeHTML(rec)}${isLen?lengthHTML(rec):''}${trendSparkHTML(rec,rec.species)}</div>`;}).join('');
@@ -520,17 +665,21 @@ function openLake(lake){
     <div class="p-kicker">${lake.county?lake.county+' County':'Minnesota'}${lake.lakeClass?' &middot; lake class '+lake.lakeClass:''}</div>
     <div class="p-name">${lake.name}</div>
     <div class="p-sub">DNR ID ${lake.id}</div>
+    ${accessBadge(lake)}
     ${scoreCard}
     <div class="stats">
      <div class="stat"><div class="v">${lake.area?lake.area.toLocaleString():'&mdash;'}<small> ac</small></div><div class="k">Surface area</div></div>
      <div class="stat"><div class="v">${lake.maxDepth??'&mdash;'}<small> ft</small></div><div class="k">Max depth</div></div>
-     <div class="stat"><div class="v">${lake.meanDepth}<small> ft</small></div><div class="k">Mean depth</div></div>
+     <div class="stat"><div class="v">${lake.meanDepth!=null?lake.meanDepth+'<small> ft</small>':'<small>unknown</small>'}</div><div class="k">Mean depth</div></div>
      <div class="stat"><div class="v">${lake.littoralPct!=null?lake.littoralPct+'<small> %</small>':'&mdash;'}</div><div class="k">Littoral (&le;15 ft)</div></div></div>
+    ${lake.meanDepth==null?`<div class="hint" style="margin-top:8px"><b>Mean depth unknown</b> &mdash; the DNR has not recorded a mean depth for this lake, so it ignores the depth slider and always appears on the map.</div>`:''}
     <div class="section-h"><h3>Species detail</h3><span class="note">density · size · trend</span></div>
     <div class="hint">Recent figures use 2019&ndash;2023 surveys; trend lines use 2015&ndash;2023. Pike &amp; muskie size is length; bass &amp; walleye is weight.</div>
     ${fishHTML}
+    ${stockingHTML(lake)}
     <div class="section-h"><h3>Target species present</h3></div>
     <div class="specieslist">${chips}</div>
+    ${lake.access&&lake.access.has&&lake.access.list&&lake.access.list.length?`<div class="section-h"><h3>Public boat access</h3></div>${accessHTML(lake)}`:''}
     <div class="datanote"><b>Real DNR data</b>
      <p>Population density = total fish caught per square mile of lake (most recent survey, 2019&ndash;2023). Map color is the lake's percentile rank vs all other lakes for that species. Size and trend come from the same MN DNR fisheries surveys. Density reflects survey effort, so read it as relative abundance, not an exact headcount.</p></div></div>`;
   panel.classList.add('open');setTimeout(()=>map.invalidateSize(),360);
